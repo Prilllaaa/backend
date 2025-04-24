@@ -1,50 +1,37 @@
-const express = require("express");
-const cors = require("cors");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-const app = express();
-const PORT = process.env.PORT || 4000;
+module.exports = async (req, res) => {
+  if (req.method === "POST") {
+    const { name, email, message } = req.body;
 
-app.use(cors());
-app.use(express.json());
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
 
-// 🔍 Log all incoming requests for debugging
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-app.post("/api/contact", (req, res) => {
-  const { name, email, message } = req.body;
+    const mailOptions = {
+      from: email,
+      to: process.env.EMAIL_TO,
+      subject: `New message from ${name}`,
+      text: message,
+    };
 
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: "All fields are required." });
-  }
-
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  const mailOptions = {
-    from: email,
-    to: process.env.EMAIL_TO,
-    subject: `New message from ${name}`,
-    text: message,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
+    try {
+      await transporter.sendMail(mailOptions);
+      return res.status(200).json({ success: true, message: "Email sent successfully!" });
+    } catch (error) {
       console.error("Error sending email:", error);
       return res.status(500).json({ error: "Failed to send message." });
     }
-    console.log("Email sent:", info.response);
-    return res.status(200).json({ success: true, message: "Email sent successfully!" });
-  });
-});
-
-
+  } else {
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
+};
