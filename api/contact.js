@@ -15,6 +15,9 @@ module.exports = async (req, res) => {
   if (req.method === "POST") {
     const { name, email, message } = req.body;
 
+    // Log the received data to check if it's coming correctly
+    console.log("Received Data:", { name, email, message });
+
     if (!name || !email || !message) {
       return res.status(400).json({ error: "All fields are required." });
     }
@@ -27,11 +30,10 @@ module.exports = async (req, res) => {
       },
     });
 
-    // Structuring the email like a traditional email
     const mailOptions = {
-      from: email, // This is the sender's email
-      to: process.env.EMAIL_TO, // This is your email where you want to receive the message
-      subject: `New message from ${name}`, // This is the subject of the email
+      from: email, // Sender's email
+      to: process.env.EMAIL_TO, // Your email
+      subject: `New message from ${name}`, // Subject line
       text: `
         From: ${name} <${email}>
         To: ${process.env.EMAIL_TO}
@@ -39,11 +41,15 @@ module.exports = async (req, res) => {
 
         Message:
         ${message}
-      `, // Traditional format
+      `, // Traditional email format
     };
+
+    // Log mailOptions before sending for debugging
+    console.log("Mail Options:", mailOptions);
 
     try {
       await transporter.sendMail(mailOptions);
+      console.log("Email sent successfully!");
       return res.status(200).json({ success: true, message: "Email sent successfully!" });
     } catch (error) {
       console.error("Error sending email:", error);
