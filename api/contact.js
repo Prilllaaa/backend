@@ -25,15 +25,15 @@ module.exports = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER, // Sender's email (your email for sending)
+        pass: process.env.EMAIL_PASS, // Your app password or email password
       },
     });
 
     const mailOptions = {
-      from: email,
-      to: process.env.EMAIL_TO,
-      subject: `New message from ${name}: ${subject}`,
+      from: email,  // The user's email (sender)
+      to: process.env.EMAIL_TO,  // Your email (recipient)
+      subject: `New message from ${name}: ${subject}`,  // Subject with name and subject
       text: `
         New Contact Form Submission:
         
@@ -46,14 +46,14 @@ module.exports = async (req, res) => {
         
         ---
         This message was sent from your portfolio website contact form.
-      `,
+      `,  // Body with user's details
     };
 
     // Log mailOptions before sending for debugging
     console.log("Mail Options:", mailOptions);
 
     try {
-      await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);  // Send the email
       console.log("Email sent successfully!");
       return res.status(200).json({ success: true, message: "Email sent successfully!" });
     } catch (error) {
