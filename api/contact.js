@@ -13,12 +13,12 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === "POST") {
-    const { name, email, message } = req.body;
+    const { name, email, subject, message } = req.body;
 
     // Log the received data to check if it's coming correctly
-    console.log("Received Data:", { name, email, message });
+    console.log("Received Data:", { name, email, subject, message });
 
-    if (!name || !email || !message) {
+    if (!name || !email || !subject || !message) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
@@ -31,17 +31,22 @@ module.exports = async (req, res) => {
     });
 
     const mailOptions = {
-      from: email, // Sender's email
-      to: process.env.EMAIL_TO, // Your email
-      subject: `New message from ${name}`, // Subject line
+      from: email,
+      to: process.env.EMAIL_TO,
+      subject: `New message from ${name}: ${subject}`,
       text: `
-        From: ${name} <${email}>
-        To: ${process.env.EMAIL_TO}
-        Subject: ${mailOptions.subject}
-
+        New Contact Form Submission:
+        
+        Name: ${name}
+        Email: ${email}
+        Subject: ${subject}
+        
         Message:
         ${message}
-      `, // Traditional email format
+        
+        ---
+        This message was sent from your portfolio website contact form.
+      `,
     };
 
     // Log mailOptions before sending for debugging
