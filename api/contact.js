@@ -27,11 +27,17 @@ module.exports = async (req, res) => {
       },
     });
 
+    // Updated mail options to include name and email in the subject and body
     const mailOptions = {
-      from: email,
-      to: process.env.EMAIL_TO,
-      subject: `New message from ${name}`,
-      text: message,
+      from: email, // The sender's email
+      to: process.env.EMAIL_TO, // Your email to receive the message
+      subject: `New message from ${name}`, // Display name in subject
+      text: `
+        You have received a new message from ${name} (${email}).
+
+        Message:
+        ${message}
+      `, // Include name, email, and message in the body of the email
     };
 
     try {
